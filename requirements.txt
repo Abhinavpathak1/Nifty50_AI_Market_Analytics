@@ -1,0 +1,50 @@
+# ============================================================
+# Nifty 50 AI Market Analytics — Requirements
+# IBM SkillsBuild Data Analytics with AI Academy Internship
+#
+# Tested on Python 3.12.4 (Windows x64)
+# All packages have pre-built wheels — NO compilation needed.
+#
+# Install using the SAME Python that runs streamlit:
+#   python -m pip install -r requirements.txt
+#
+# To find which python streamlit uses:
+#   where streamlit   (Windows)
+# ============================================================
+
+# ── Core data processing ───────────────────────────────────
+pandas>=2.3.0
+numpy>=1.26.0
+
+# ── Visualisation ──────────────────────────────────────────
+matplotlib>=3.9.0
+seaborn>=0.13.0
+plotly>=7.1.0
+
+# ── Machine learning ───────────────────────────────────────
+scikit-learn>=1.5.0
+xgboost>=2.0.0
+
+# ── Technical analysis ─────────────────────────────────────
+ta>=0.11.0
+
+# ── Dashboard ──────────────────────────────────────────────
+streamlit>=1.28.0
+
+# ── Model persistence ──────────────────────────────────────
+joblib>=1.3.0
+
+# ── Report / Office file generation ───────────────────────
+openpyxl>=3.1.0
+python-docx>=1.1.0
+
+# ── Jupyter support ────────────────────────────────────────
+ipykernel>=6.25.0
+nbformat>=5.9.0
+
+# ── Utilities ──────────────────────────────────────────────
+tqdm>=4.65.0
+
+# ── Deep learning (optional) ───────────────────────────────
+# Requires compatible protobuf. Uncomment only if TF is working:
+# tensorflow>=2.13.0
