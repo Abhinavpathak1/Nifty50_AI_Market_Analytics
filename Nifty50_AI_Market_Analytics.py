@@ -420,7 +420,10 @@ def engineer_features(df):
         g["Volume_SMA5"]   = v.rolling(5).mean()
         return g
 
+    # pandas 3 excludes grouping columns from apply results; restore by row index.
+    ticker_by_index = df["Ticker"]
     df = df.groupby("Ticker", group_keys=False).apply(_per_ticker)
+    df["Ticker"] = ticker_by_index.reindex(df.index).to_numpy()
     df = df.sort_values(["Ticker", "Date"]).reset_index(drop=True)
     print(f"  Features added. Shape: {df.shape}")
     return df
@@ -480,7 +483,11 @@ def add_indicators(df):
             g["ATR_14"]   = tr.rolling(14).mean()
         return g
 
+    df = df.reset_index(drop=True)
+    # pandas 3 excludes grouping columns from apply results; restore by row index.
+    ticker_by_index = df["Ticker"]
     df = df.groupby("Ticker", group_keys=False).apply(_ind)
+    df["Ticker"] = ticker_by_index.reindex(df.index).to_numpy()
     df = df.sort_values(["Ticker", "Date"]).reset_index(drop=True)
     print(f"  Indicators added. Shape: {df.shape}")
     return df
@@ -524,6 +531,8 @@ EXCLUDE_FROM_FEATURES = {
 def prepare_split(df):
     print("\nPreparing train/val/test split …")
     df_ml = df.dropna(subset=["Next_Day_Close"]).copy()
+    if df_ml.empty:
+        raise ValueError("Cannot prepare model splits: no rows have a next-day close target.")
 
     # Build feature list
     feat_cols = sorted([c for c in df_ml.columns
@@ -531,13 +540,22 @@ def prepare_split(df):
                         and df_ml[c].dtype in [np.float64, np.float32,
                                                np.int64, np.int32, float, int]])
     df_ml_num = df_ml[feat_cols].select_dtypes(include=[np.number])
-    feat_cols = list(df_ml_num.columns)
-
-    df_ml = df_ml.dropna(subset=feat_cols).copy()
+    feat_cols = [c for c in df_ml_num.columns if df_ml_num[c].notna().any()]
+    excluded_features = sorted(set(df_ml_num.columns) - set(feat_cols))
+    if excluded_features:
+        print(f"  Excluded all-null features: {', '.join(excluded_features)}")
+    if not feat_cols:
+        raise ValueError("Cannot prepare model splits: no numeric features contain usable values.")
+    n_infinite = int(np.isinf(df_ml[feat_cols].to_numpy(dtype=float)).sum())
+    if n_infinite:
+        print(f"  Replacing {n_infinite:,} infinite feature values with missing values.")
+        df_ml[feat_cols] = df_ml[feat_cols].replace([np.inf, -np.inf], np.nan)
 
     # Chronological split by date
     all_dates = df_ml["Date"].sort_values().unique()
     n         = len(all_dates)
+    if n < 3:
+        raise ValueError(f"Cannot prepare chronological splits with only {n} distinct dates.")
     train_cut = all_dates[int(n * TRAIN_RATIO)]
     val_cut   = all_dates[int(n * (TRAIN_RATIO + VAL_RATIO))]
 

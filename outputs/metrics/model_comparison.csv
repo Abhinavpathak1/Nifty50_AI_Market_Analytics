@@ -1,0 +1,10 @@
+Model,MAE,RMSE,R2,Task,Dir_Accuracy,Dir_F1,ROC_AUC
+Baseline,28.4271,72.3765,0.9997,Close,,,
+Linear Regression,28.8497,73.1373,0.9997,Close,,,
+Logistic Regression,,,,Direction,0.5032,0.4647,0.506
+Random Forest,178.4284,1088.0733,0.9293,Close,,,
+Random Forest Clf,,,,Direction,0.5114,0.6353,0.5073
+RF_Next_Day_High,176.8078,1082.7671,0.9315,Next_Day_High,,,
+RF_Next_Day_Low,167.9412,1079.3554,0.9289,Next_Day_Low,,,
+XGBoost,341.6993,1527.7799,0.8605,Close,,,
+XGBoost Clf,,,,Direction,0.5103,0.6308,0.5073
